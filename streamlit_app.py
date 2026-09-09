@@ -1037,7 +1037,11 @@ def _render_run_sidebar(
     else:
         metrics = [(_fmt(len(rows)), "找到帖子" if zh else "posts found", False)]
     overview = "".join(
-        f'<div class="overview-row"><strong{(" style=\"font-size:15px\"" if compact else "")}>{html.escape(value)}</strong><span>{label}</span></div>'
+        '<div class="overview-row"><strong{style}>{value}</strong><span>{label}</span></div>'.format(
+            style=' style="font-size:15px"' if compact else "",
+            value=html.escape(value),
+            label=label,
+        )
         for value, label, compact in metrics
     )
     st.markdown(
