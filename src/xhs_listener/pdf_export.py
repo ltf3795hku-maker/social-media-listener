@@ -4,8 +4,8 @@
 CSS 用了不少 grid/flex 布局（指标卡、图表网格、竞对卡片），只有真实浏览器
 引擎能保证转出来的 PDF 和网页上看到的样式完全一致。
 
-Chromium 二进制需要本机先装一次（大约一两百 MB，一次性，装好之后不用再装）。
-第一次调用时如果发现没装，会自动帮忙跑一次 `playwright install chromium`；
+Chromium 二进制及其系统运行库需要本机先装一次（大约一两百 MB，一次性，装好之后不用再装）。
+第一次调用时如果发现没装，会自动帮忙跑一次 `playwright install --with-deps chromium`；
 装完自动重试，不需要用户去终端手动敲命令。
 """
 from __future__ import annotations
@@ -73,7 +73,7 @@ def _looks_like_missing_browser(exc: Exception) -> bool:
 
 def _install_chromium() -> None:
     result = subprocess.run(
-        [sys.executable, "-m", "playwright", "install", "chromium"],
+        [sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"],
         capture_output=True,
         text=True,
     )
