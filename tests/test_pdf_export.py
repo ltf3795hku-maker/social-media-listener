@@ -2,11 +2,18 @@
 from __future__ import annotations
 
 import inspect
+import sys
 from pathlib import Path
 
 import pytest
 
-from xhs_listener.pdf_export import PdfExportError, _looks_like_missing_browser, _render_pdf, cached_report_pdf
+from xhs_listener.pdf_export import (
+    PdfExportError,
+    _install_chromium,
+    _looks_like_missing_browser,
+    _render_pdf,
+    cached_report_pdf,
+)
 
 
 def test_render_pdf_forces_details_open_before_printing() -> None:
@@ -78,6 +85,29 @@ def test_looks_like_missing_browser_detects_playwright_install_error() -> None:
     assert _looks_like_missing_browser(exc)
 
     assert not _looks_like_missing_browser(RuntimeError("some other unrelated failure"))
+
+
+def test_install_chromium_does_not_install_system_dependencies(monkeypatch) -> None:
+    calls = []
+
+    class CompletedProcess:
+        returncode = 0
+        stderr = ""
+
+    def fake_run(command, **kwargs):
+        calls.append((command, kwargs))
+        return CompletedProcess()
+
+    monkeypatch.setattr("xhs_listener.pdf_export.subprocess.run", fake_run)
+
+    _install_chromium()
+
+    assert calls == [
+        (
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            {"capture_output": True, "text": True},
+        )
+    ]
 
 
 def test_html_to_pdf_wraps_import_error_as_pdf_export_error(tmp_path: Path, monkeypatch) -> None:
