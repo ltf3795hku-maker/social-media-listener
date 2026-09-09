@@ -313,6 +313,12 @@ def _inject_app_styles() -> None:
           border-color:var(--primary-blue-hover);background:var(--primary-blue-hover);color:#fff}
         .stButton>button:disabled,div[data-testid="stFormSubmitButton"]>button:disabled {opacity:.45;box-shadow:none}
         div[data-baseweb="input"],div[data-baseweb="select"]>div,div[data-baseweb="textarea"] {border-radius:10px!important;background:#fff}
+                div[data-baseweb="input"] input,div[data-baseweb="textarea"] textarea {
+                    background:#fff!important;color:var(--ink)!important;caret-color:var(--primary-blue)!important}
+                div[data-baseweb="input"] input::placeholder,div[data-baseweb="textarea"] textarea::placeholder {
+                    color:#94a3b8!important;opacity:1!important}
+                div[data-baseweb="input"]:has(input[type="password"]),div[data-baseweb="input"]:has(input[type="text"]) {
+                    border:1px solid #cfd9ea!important}
         div[data-baseweb="input"]:focus-within,div[data-baseweb="select"]:focus-within {box-shadow:0 0 0 2px rgba(31,93,204,.10)!important}
         div[data-testid="stForm"] {border:1px solid var(--line);border-radius:var(--radius);padding:18px;background:#fff;box-shadow:var(--shadow)}
         div[data-testid="stExpander"] {border:1px solid #e4e9f1;border-radius:12px;background:#fff;box-shadow:none}
@@ -1318,15 +1324,19 @@ def _render_login_gate() -> bool:
     if lang == "zh":
         title = "访问验证"
         subtitle = "请输入用户名和密码后使用系统。"
-        user_label = "用户名"
-        pass_label = "密码"
+        user_label = "用户名（必填）"
+        pass_label = "密码（必填）"
+        user_placeholder = "请输入用户名"
+        pass_placeholder = "请输入密码"
         login_label = "登录"
         error_text = "用户名或密码错误。"
     else:
         title = "Access Verification"
         subtitle = "Please enter a username and password to use the system."
-        user_label = "Username"
-        pass_label = "Password"
+        user_label = "Username (required)"
+        pass_label = "Password (required)"
+        user_placeholder = "Enter your username"
+        pass_placeholder = "Enter your password"
         login_label = "Sign in"
         error_text = "Invalid username or password."
 
@@ -1335,8 +1345,12 @@ def _render_login_gate() -> bool:
         st.markdown(f"### {title}")
         st.caption(subtitle)
         with st.form("login_form", clear_on_submit=False):
-            username = st.text_input(user_label, value=st.session_state.get("auth_username", "")).strip()
-            password = st.text_input(pass_label, type="password")
+            username = st.text_input(
+                user_label,
+                value=st.session_state.get("auth_username", ""),
+                placeholder=user_placeholder,
+            ).strip()
+            password = st.text_input(pass_label, type="password", placeholder=pass_placeholder)
             submitted = st.form_submit_button(login_label, type="primary", use_container_width=True)
 
         if submitted:
