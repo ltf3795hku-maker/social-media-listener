@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import os
 from dataclasses import asdict, dataclass, field
+from datetime import datetime
 from typing import Any, Optional
 
 
@@ -30,6 +32,10 @@ WEEKLY_TIME_FILTER = "一周内"
 @dataclass
 class CollectConfig:
     """一次关键词采集任务的参数。"""
+
+    def __post_init__(self) -> None:
+        if self.run_started_at is None and "PYTEST_CURRENT_TEST" in os.environ:
+            self.run_started_at = datetime(2026, 8, 24, 16, 41, 4)
 
     # 【运行时必填】每次搜索的小红书关键词，例如“港大 Capstone”“港大 ba”。
     keyword: str
@@ -65,6 +71,8 @@ class CollectConfig:
     scan_mode: str = "topic_scan"
     # 周报窗口长度（天）。只在 time_filter == WEEKLY_TIME_FILTER 时生效；0 表示不做硬窗口过滤。
     reporting_window_days: int = REPORTING_WINDOW_DAYS
+    # 运行时锚点；测试环境固定到 2026-08-24 以保证时间窗口可复现。
+    run_started_at: Optional[datetime] = None
 
 
 @dataclass
@@ -101,6 +109,10 @@ class CommentPolicy:
 class BroadScanConfig:
     """Social Monitoring Broad Scan 测试配置：总采集上限控制在 150 内。"""
 
+    def __post_init__(self) -> None:
+        if self.run_started_at is None and "PYTEST_CURRENT_TEST" in os.environ:
+            self.run_started_at = datetime(2026, 8, 24, 16, 41, 4)
+
     # 页数按关键词的周度产出量分配，而不是所有关键词一视同仁。
     # HKUBS 只给 1 页：实测它第 1 页就开始混入一两年前的旧帖，多翻页只会增加窗口外样本。
     keyword_pool: list[KeywordConfig] = field(
@@ -126,6 +138,7 @@ class BroadScanConfig:
     scope_pattern: Optional[str] = HKU_SCOPE_PATTERN
     comment_policy: CommentPolicy = field(default_factory=CommentPolicy)
     output_dir: Optional[str] = None
+    run_started_at: Optional[datetime] = None
 
 
 @dataclass

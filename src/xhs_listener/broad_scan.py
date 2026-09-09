@@ -45,7 +45,7 @@ def broad_collect(
 ) -> CollectionRun:
     """执行 Broad Scan：多关键词搜索先去重，再统一抓详情和可选评论。"""
 
-    run_started_at = datetime.now()
+    run_started_at = config.run_started_at or datetime.now()
     base_config = _base_collect_config(config)
     window = (
         reporting_window_bounds(run_started_at, config.reporting_window_days)

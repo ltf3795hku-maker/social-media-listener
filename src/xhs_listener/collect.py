@@ -65,7 +65,7 @@ class XiaohongshuCollector:
     def collect(self, config: CollectConfig) -> CollectionRun:
         """执行一次完整采集，并把原始页、笔记、评论和摘要落盘。"""
 
-        run_started_at = datetime.now()
+        run_started_at = config.run_started_at or datetime.now()
         window = (
             reporting_window_bounds(run_started_at, config.reporting_window_days)
             if window_is_active(config)
