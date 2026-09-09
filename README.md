@@ -93,7 +93,7 @@ Topic Search 的耗时取决于搜索页数、帖子数量、评论设置和外�
 
 本地默认数据目录是 `data/`；Azure Linux 默认持久化目录是 `/home/data`。可以通过 `XHS_DATA_DIR` 覆盖。
 
-报告页的 PDF 下载由 Playwright/Chromium 从已生成的 `report.html` 渲染并缓存；首次生成可能需要安装浏览器引擎。
+报告页提供已生成的 `report.html` 下载，可直接离线打开查看。
 
 ## Notes / Limitations
 
@@ -168,7 +168,7 @@ The system mainly relies on TikHub for public Xiaohongshu sample acquisition and
 
 Environment variables are documented in `.env.example`. API credentials must be configured locally or in the deployment environment and must not be committed to Git.
 
-PDF downloads are rendered and cached from `report.html` with Playwright/Chromium; the first generation may need to install the browser engine.
+The report page provides the generated `report.html` for direct offline viewing.
 
 ### Notes
 

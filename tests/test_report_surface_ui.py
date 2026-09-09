@@ -1,4 +1,4 @@
-"""报告页 UI 契约：预览不截断、下载是 PDF、英文版按钮走翻译而不是重新收集。"""
+"""报告页 UI 契约：预览不截断、下载 HTML、英文版按钮走翻译而不是重新收集。"""
 from __future__ import annotations
 
 import ast
@@ -23,11 +23,11 @@ def test_report_iframe_allows_scrolling_so_long_reports_are_not_cut_off() -> Non
     assert "scrolling=True" in src
 
 
-def test_download_button_produces_pdf_not_html() -> None:
+def test_download_button_produces_html_report() -> None:
     helper_src = ast.unparse(_func("_render_report_download_button"))
-    assert "cached_report_pdf" in helper_src
-    assert "application/pdf" in helper_src
-    assert ".pdf" in helper_src
+    assert "html_path.read_bytes()" in helper_src
+    assert "text/html" in helper_src
+    assert ".html" in helper_src
 
 
 def test_report_surface_wires_both_download_and_english_section() -> None:

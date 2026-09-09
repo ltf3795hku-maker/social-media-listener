@@ -1142,7 +1142,7 @@ def _render_report_surface(runs: list[dict[str, Any]]) -> None:
     with title:
         st.markdown(
             f'<div class="page-title"><h1>{html.escape(_task_display_name(run))}</h1>'
-            f'<p>{"下载得到的是 PDF 版本，样式与下方在线报告完全一致。" if zh else "The download is a PDF version - same styling as the report shown below."}</p></div>',
+            f'<p>{"可下载 HTML 文件，离线打开即可查看完整报告。" if zh else "Download the HTML file to view the complete report offline."}</p></div>',
             unsafe_allow_html=True,
         )
     with download:
@@ -1150,7 +1150,7 @@ def _render_report_surface(runs: list[dict[str, Any]]) -> None:
             run,
             html_path,
             key_suffix="zh",
-            label="下载报告（PDF）" if zh else "Download report (PDF)",
+            label="下载报告（HTML）" if zh else "Download report (HTML)",
             file_suffix="",
         )
     _render_english_report_section(run)
@@ -1165,40 +1165,16 @@ def _render_report_download_button(
     label: str,
     file_suffix: str,
 ) -> None:
-    """打印成 PDF 再给下载；report.html 没变就直接用缓存，不用每次都重新起 Chromium。
+    """直接下载已生成的自包含 HTML 报告，不启动浏览器或转换服务。"""
 
-    如果本机 Chromium 还没装好或者渲染出于某种原因失败，退化成提供原始
-    HTML 下载，而不是让用户什么都下不到。
-    """
-
-    zh = _lang() == "zh"
-    from xhs_listener.pdf_export import PdfExportError, cached_report_pdf
-
-    pdf_path = html_path.with_suffix(".pdf")
-    try:
-        with st.spinner(
-            "首次生成需要准备 PDF 渲染引擎，可能需要一两分钟…" if zh
-            else "First-time setup needs to prepare the PDF engine, this can take a minute or two…"
-        ):
-            pdf_bytes = cached_report_pdf(html_path, pdf_path)
-        st.download_button(
-            label,
-            data=pdf_bytes,
-            file_name=f"{_report_download_name(run)}{file_suffix}.pdf",
-            mime="application/pdf",
-            use_container_width=True,
-            key=f"download_report_{key_suffix}_{run['id']}",
-        )
-    except PdfExportError as exc:
-        st.error(("PDF 生成失败，可以先下载 HTML：" if zh else "PDF generation failed, you can download the HTML for now: ") + str(exc))
-        st.download_button(
-            "改为下载 HTML" if zh else "Download HTML instead",
-            data=html_path.read_bytes(),
-            file_name=f"{_report_download_name(run)}{file_suffix}.html",
-            mime="text/html",
-            use_container_width=True,
-            key=f"download_report_html_fallback_{key_suffix}_{run['id']}",
-        )
+    st.download_button(
+        label,
+        data=html_path.read_bytes(),
+        file_name=f"{_report_download_name(run)}{file_suffix}.html",
+        mime="text/html",
+        use_container_width=True,
+        key=f"download_report_{key_suffix}_{run['id']}",
+    )
 
 
 def _render_translation_coverage_note(run: dict[str, Any], *, zh: bool) -> None:
@@ -1263,7 +1239,7 @@ def _render_english_report_section(run: dict[str, Any]) -> None:
             run,
             en_html_path,
             key_suffix="en",
-            label="下载英文报告（PDF）" if zh else "Download English report (PDF)",
+            label="下载英文报告（HTML）" if zh else "Download English report (HTML)",
             file_suffix="_en",
         )
         if st.button("重新生成英文报告" if zh else "Regenerate English report", key=f"regen_en_{run['id']}"):
@@ -1282,7 +1258,7 @@ def _render_help_surface() -> None:
     items = [
         ("01", "输入主题", "输入想了解的话题，并选择帖子数量与搜索范围。") if zh else ("01", "Enter a topic", "Choose a topic, post count and search scope."),
         ("02", "自动分析", "系统会持续展示找到的帖子，并自动进入分析。") if zh else ("02", "Automatic analysis", "Review found posts while analysis continues automatically."),
-        ("03", "阅读报告", "报告完成后自动保存，可在线阅读或打印为 PDF。") if zh else ("03", "Read the report", "Completed reports are saved for web reading or PDF printing."),
+        ("03", "阅读报告", "报告完成后自动保存，可在线阅读或下载 HTML。") if zh else ("03", "Read the report", "Completed reports are saved for web reading or HTML download."),
     ]
     for col, (number, title, body) in zip(cols, items):
         col.markdown(f'<div class="surface-card"><div class="eyebrow">{number}</div><h3>{title}</h3><p class="muted">{body}</p></div>', unsafe_allow_html=True)

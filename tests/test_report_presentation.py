@@ -67,7 +67,7 @@ def test_report_has_no_separate_print_presentation() -> None:
 
 
 def test_streamlit_downloads_the_same_file_it_embeds() -> None:
-    """下载按钮必须是页面里嵌入的那份 report.html 打印出来的 PDF——不是另一份简化版。"""
+    """下载按钮必须直接提供页面里嵌入的那份 report.html。"""
 
     source = (ROOT / "streamlit_app.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
@@ -80,13 +80,13 @@ def test_streamlit_downloads_the_same_file_it_embeds() -> None:
     surface_body = ast.get_source_segment(source, _func("_render_report_surface")) or ""
     download_body = ast.get_source_segment(source, _func("_render_report_download_button")) or ""
 
-    # 同一个 html_path 既用于 iframe 嵌入，也传给下载按钮去生成 PDF。
+    # 同一个 html_path 既用于 iframe 嵌入，也传给下载按钮。
     assert "_render_report_iframe(_html_data_url(html_path))" in surface_body
     assert "_render_report_download_button(" in surface_body
-    # 下载按钮把传入的 html_path（而不是另一份文件）转成 PDF 给用户下载。
-    assert "cached_report_pdf(html_path, pdf_path)" in download_body
-    assert 'mime="application/pdf"' in download_body
-    assert '.pdf"' in download_body
+    # 下载按钮直接提供传入的 html_path，而不是生成另一份简化版文件。
+    assert "html_path.read_bytes()" in download_body
+    assert 'mime="text/html"' in download_body
+    assert '.html"' in download_body
     # 不得再生成简化版/Markdown 版下载
     assert "build_report_markdown" not in source
     assert "report_md" not in source
@@ -164,9 +164,7 @@ def test_monitoring_overview_metrics_grid_does_not_force_two_columns() -> None:
 
 def test_appendix_and_audience_details_expand_when_forced_open() -> None:
     """附录、方法论、单帖受众反应在网页上默认折叠（<details> 无 open），
-    这是故意的——但 PDF 导出前会把所有 <details> 强制展开（见
-    pdf_export.html_to_pdf），所以这里只需要保证内容确实在 <details> 里面，
-    强制展开后就不会是空的。"""
+    这是故意的，所以这里只需要保证内容确实在 <details> 里面。"""
 
     html_report = build_report_html(_broad_structured(2), {}, {"scan_mode": "broad_scan"}, "2026-08-26")
 
