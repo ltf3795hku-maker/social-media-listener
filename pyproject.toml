@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xhs-listener"
+version = "0.1.1"
+description = "Lightweight Xiaohongshu keyword data collector"
+# 代码使用 PEP 701 嵌套引号 f-string（report.py / streamlit_app.py），3.11 及以下无法解析。
+requires-python = ">=3.12"
+dependencies = [
+  "python-dotenv>=1.0.1",
+  "openai>=1.0.0",
+  "streamlit>=1.35.0",
+  "playwright>=1.40.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
