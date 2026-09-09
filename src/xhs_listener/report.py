@@ -2108,11 +2108,19 @@ def build_report_html(structured: dict[str, Any], analysis_bundle: dict[str, Any
         if competitor_cards:
             sections.append(_html_section(_rt(locale, "competitor_weekly"), "<div class='competitor-list'>" + "".join(competitor_cards) + "</div>"))
     appendix = structured.get("appendix") or {}
-    evidence_rows = "".join(
-        f"<div class='evidence-item'><div class='muted'>{_esc(row.get('source') or _rt(locale, 'source'))}{' · ' + _esc(row.get('date')) if row.get('date') else ''}</div>"
-        f"<p>{_esc(row.get('hint') or '-')}</p>{f'<a href={json.dumps(_public_post_url(row.get("post_url")))} target="_blank" rel="noreferrer">{_esc(open_label)}</a>' if row.get('post_url') else ''}</div>"
-        for row in appendix.get("evidence") or []
-    )
+    evidence_items = []
+    for row in appendix.get("evidence") or []:
+        post_url = row.get("post_url")
+        if post_url:
+            link = html.escape(_public_post_url(post_url, _as_text(row.get("note_id"), "")), quote=True)
+            post_link_html = f'<a href="{link}" target="_blank" rel="noreferrer">{_esc(open_label)}</a>'
+        else:
+            post_link_html = ""
+        evidence_items.append(
+            f"<div class='evidence-item'><div class='muted'>{_esc(row.get('source') or _rt(locale, 'source'))}{' · ' + _esc(row.get('date')) if row.get('date') else ''}</div>"
+            f"<p>{_esc(row.get('hint') or '-')}</p>{post_link_html}</div>"
+        )
+    evidence_rows = "".join(evidence_items)
     evidence_table = f"<div class='evidence-grid'>{evidence_rows}</div>" if evidence_rows else f"<p>{_esc(_rt(locale, 'empty'))}</p>"
     limits = "".join(f"<li>{_esc(item)}</li>" for item in structured.get("data_limitations") or [])
     method = "".join(f"<li>{_esc(item)}</li>" for item in appendix.get("methodology") or [])
