@@ -57,9 +57,17 @@ class SupabaseRunStore:
         self._init_schema()
 
     def _init_schema(self) -> None:
-        response = self.client.table("runs").select("id").limit(1).execute()
+        try:
+            response = self.client.table("runs").select("id").limit(1).execute()
+        except Exception as exc:  # noqa: BLE001
+            raise RuntimeError(
+                "Supabase storage is configured, but the public.runs table cannot be read. "
+                "Run supabase_schema.sql in the Supabase SQL Editor for this project, "
+                "then confirm SUPABASE_SECRET_KEY is the server-side secret key. "
+                f"Original database error: {exc}"
+            ) from exc
         if response.data is None:  # pragma: no cover - defensive client behavior
-            raise RuntimeError("Supabase runs table is unavailable")
+            raise RuntimeError("Supabase public.runs table returned no data")
 
     @staticmethod
     def _now() -> str:
