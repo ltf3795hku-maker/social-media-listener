@@ -93,6 +93,12 @@ Topic Search 的耗时取决于搜索页数、帖子数量、评论设置和外�
 
 本地默认数据目录是 `data/`；Azure Linux 默认持久化目录是 `/home/data`。可以通过 `XHS_DATA_DIR` 覆盖。
 
+部署时必须把 `XHS_DATA_DIR` 指向持久化存储。Azure App Service 使用 `/home/data`（并确认
+App Service 的持久化存储已启用）。不要使用 `/tmp`、容器工作目录或其他临时文件系统，
+否则重启/重新部署后 `runs.sqlite3` 和 `runs/` 下的报告文件会一起消失。Cloud Run 和
+Streamlit Community Cloud 的本地文件系统不保证跨重启保存；这些平台需要配置外部数据库及
+对象存储，或提供持久化卷后再设置 `XHS_DATA_DIR`。
+
 报告页提供已生成的 `report.html` 下载，可直接离线打开查看。
 
 ## Notes / Limitations

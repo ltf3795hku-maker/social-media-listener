@@ -5,7 +5,6 @@ FROM python:3.12-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    XHS_DATA_DIR=/tmp/xhs-data \
     UI_PREVIEW_MODE=false \
     PYTHONPATH=/app/src
 
@@ -20,7 +19,7 @@ COPY src ./src
 COPY .streamlit ./.streamlit
 
 RUN chmod +x startup.sh \
-    && mkdir -p /tmp/xhs-data
+    && mkdir -p /app/data
 
 EXPOSE 8080
 
