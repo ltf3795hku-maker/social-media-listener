@@ -32,10 +32,24 @@ if load_dotenv is not None:
     load_dotenv(override=True)
 
 
-# 报告库是共享的：sqlite、run 目录、report.html/json 全部落在同一个 data root。
+# 报告库是共享的。Community Cloud 使用 Supabase；本地开发和测试继续使用 SQLite。
 # 具体位置由 paths.resolve_data_root 统一决定，不在各处零散判断。
 DATA_DIR = data_root()
-STORE = RunStore(runs_db_path())
+
+
+def _build_store() -> RunStore | Any:
+    supabase_url = (os.getenv("SUPABASE_URL") or "").strip()
+    supabase_key = (os.getenv("SUPABASE_SECRET_KEY") or "").strip()
+    if bool(supabase_url) != bool(supabase_key):
+        raise RuntimeError("SUPABASE_URL and SUPABASE_SECRET_KEY must be configured together")
+    if supabase_url and supabase_key:
+        from xhs_listener.supabase_store import SupabaseRunStore
+
+        return SupabaseRunStore()
+    return RunStore(runs_db_path())
+
+
+STORE = _build_store()
 MANAGER = RunManager(STORE)
 STORE.mark_interrupted_runs()
 _LOCK = threading.Lock()

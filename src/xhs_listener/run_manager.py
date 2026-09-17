@@ -506,6 +506,9 @@ class RunManager:
             report_json=result.get("report_json"),
             report_html=result.get("report_html"),
         )
+        sync_artifacts = getattr(self.store, "sync_artifacts", None)
+        if sync_artifacts is not None:
+            sync_artifacts(context["run_id"], run_dir)
 
     def generate_english_report(self, run_id: int, request: ManagedRunRequest) -> dict[str, Any]:
         """按需生成英文版报告：只翻译已经生成好的中文 report.json，不重跑 analyze。
@@ -532,6 +535,9 @@ class RunManager:
             report_json_en=result.get("report_json_en"),
             report_html_en=result.get("report_html_en"),
         )
+        sync_artifacts = getattr(self.store, "sync_artifacts", None)
+        if sync_artifacts is not None:
+            sync_artifacts(run_id, run_dir)
         return self.store.get_run(run_id)
 
     def _sync_usage_from_disk(self, context: dict[str, Any]) -> None:

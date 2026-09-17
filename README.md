@@ -101,6 +101,23 @@ Streamlit Community Cloud 的本地文件系统不保证跨重启保存；这些
 
 报告页提供已生成的 `report.html` 下载，可直接离线打开查看。
 
+### Streamlit Community Cloud + Supabase
+
+Community Cloud 配置 Supabase 后，应用会自动使用 Supabase 保存运行历史，并把每次完成的
+运行目录压缩上传到 `reports` bucket。先在 Supabase SQL Editor 执行仓库中的
+`supabase_schema.sql`，然后创建名为 `reports` 的 **private** Storage bucket。
+
+在 Community Cloud Secrets 中设置：
+
+```toml
+SUPABASE_URL = "https://your-project.supabase.co"
+SUPABASE_SECRET_KEY = "sb_secret_..."
+SUPABASE_STORAGE_BUCKET = "reports"
+```
+
+`SUPABASE_SECRET_KEY` 只供服务器使用，不要提交到 Git 或放入前端代码。未设置 Supabase
+配置时，应用继续使用本地 SQLite，适合本地开发；设置不完整时应用会直接报配置错误。
+
 ## Notes / Limitations
 
 - 报告仅反映本轮公开搜索样本，不代表小红书全平台总体意见。
