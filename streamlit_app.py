@@ -275,7 +275,8 @@ def _elapsed_text(run: dict[str, Any], zh: bool) -> str:
         began = datetime.fromisoformat(started)
     except ValueError:
         return ""
-    seconds = int(max(0, (datetime.now() - began).total_seconds()))
+    now = datetime.now(began.tzinfo) if began.tzinfo is not None else datetime.now()
+    seconds = int(max(0, (now - began).total_seconds()))
     minutes, secs = divmod(seconds, 60)
     span = f"{minutes} 分 {secs} 秒" if zh else f"{minutes}m {secs}s"
     return (f"已用时 {span}") if zh else f"Elapsed {span}"

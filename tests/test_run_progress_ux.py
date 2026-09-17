@@ -100,6 +100,26 @@ def test_progress_area_reports_real_pipeline_state_without_fake_percentages() ->
     assert len(COLLECT_STEPS) + len(ANALYSIS_STEPS) == 4
 
 
+def test_elapsed_text_accepts_postgres_timezone_aware_timestamp() -> None:
+    from datetime import datetime, timedelta, timezone
+
+    from streamlit_app import _elapsed_text
+
+    started = (datetime.now(timezone.utc) - timedelta(seconds=5)).isoformat()
+
+    assert "已用时" in _elapsed_text({"started_at": started}, zh=True)
+
+
+def test_elapsed_text_accepts_local_timezone_naive_timestamp() -> None:
+    from datetime import datetime, timedelta
+
+    from streamlit_app import _elapsed_text
+
+    started = (datetime.now() - timedelta(seconds=5)).isoformat()
+
+    assert "已用时" in _elapsed_text({"started_at": started}, zh=True)
+
+
 def test_header_and_search_form_are_outside_the_polling_fragment() -> None:
     """页头、导航、搜索表单都不在状态区 fragment 内，运行期间不会重绘。"""
 
